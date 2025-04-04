@@ -14,9 +14,24 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
+# In your project's main urls.py (usually located in the folder that contains settings.py)
 from django.contrib import admin
 from django.urls import path
+from users.views import LoginView, CustomTokenObtainPairView, DashboardView  # Import LoginView
+from rest_framework_simplejwt.views import TokenRefreshView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    
+    # JWT Authentication Endpoints
+    path('api/token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+
+    # Protected Endpoint
+    path('protected-endpoint/', DashboardView.as_view(), name='protected-endpoint'),
+    path('login/', LoginView.as_view(template_name='users/login.html'), name='login'),
+    
 ]
+
+
