@@ -8,7 +8,7 @@ User = get_user_model()
 
 class Post(models.Model):
     id = models.AutoField(primary_key=True)  
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts__')  # Related to the user
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_posts')  # Related to the user
     content = models.TextField()  
     created_at = models.DateTimeField(auto_now_add=True)  
     updated_at = models.DateTimeField(auto_now=True)  
@@ -21,8 +21,8 @@ class Post(models.Model):
 
 class Comment(models.Model):
     id = models.AutoField(primary_key=True)  
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments__')  
-    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments__') 
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='post_comments')  
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='user_comments') 
     content = models.TextField()  
     created_at = models.DateTimeField(auto_now_add=True)
 
