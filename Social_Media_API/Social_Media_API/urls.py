@@ -22,6 +22,9 @@ from django.urls import path
 # from users.views import login_view, CustomTokenObtainPairView, DashboardView  # Import LoginView
 from rest_framework_simplejwt.views import TokenRefreshView
 
+
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('users/', include('users.urls')),
+    path('api/', include('users.urls')),
 ]

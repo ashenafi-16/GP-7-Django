@@ -2,6 +2,10 @@ from django.urls import path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from .views import CustomTokenObtainPairView, DashboardView, user_logout
 from django.contrib.auth.views import PasswordChangeView, PasswordChangeDoneView
+from django.urls import path # type: ignore
+from .views import user_logout
+from django.contrib.auth.views import PasswordChangeView, PasswordChangeDoneView # type: ignore
+from .views import RegisterView
 
 urlpatterns = [
     # JWT Authentication endpoints
@@ -15,4 +19,6 @@ urlpatterns = [
     path('logout/', user_logout, name='logout'),
     path('password_change/', PasswordChangeView.as_view(), name='password_change'),
     path('password_change_done/', PasswordChangeDoneView.as_view(), name='password_change_done'),
+
+    path('auth/register/', RegisterView.as_view(), name='register'),
 ]
