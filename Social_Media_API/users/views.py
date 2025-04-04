@@ -1,3 +1,9 @@
+from django.shortcuts import render
+from django.http import HttpResponse
+
+# Create your views here.
+def login_view(request):
+    return HttpResponse("Login Page")
 from rest_framework.views import APIView # type: ignore
 from rest_framework.response import Response # type: ignore
 from rest_framework.permissions import IsAuthenticated # type: ignore
