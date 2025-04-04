@@ -36,7 +36,7 @@ class Like(models.Model):
     liked_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = {'user', 'post'}
+        unique_together = ('user', 'post')
     
     def __str__(self):
         return f"{self.user.username} liked Post {self.post.id}"

@@ -19,7 +19,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path,include
 from django.urls import path
-from users.views import LoginView, CustomTokenObtainPairView, DashboardView  # Import LoginView
+# from users.views import login_view, CustomTokenObtainPairView, DashboardView  # Import LoginView
 from rest_framework_simplejwt.views import TokenRefreshView
 
 urlpatterns = [
