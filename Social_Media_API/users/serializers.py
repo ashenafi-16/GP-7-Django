@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User 
 from django.contrib.auth.password_validation import validate_password
+from .models import Post
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -36,3 +37,17 @@ class ChangePasswordSerializer(serializers.Serializer):
     def validate_new_password(self, value):
         validate_password(value) 
         return value
+    
+
+
+
+class PostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Post
+        fields = ['id', 'content']  
+
+    def update(self, instance, validated_data):
+        instance.content = validated_data.get('content', instance.content)
+        instance.save()
+        return instance
+

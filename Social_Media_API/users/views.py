@@ -12,6 +12,8 @@ from .serializers import (
     LogoutSerializer,
     ChangePasswordSerializer
 )
+from .models import Post
+from .serializers import PostSerializer
 
 class RegisterView(APIView):
     def post(self, request):
@@ -24,7 +26,7 @@ class RegisterView(APIView):
     
 
 
-# Create your views here.
+
 def login_view(request):
     return HttpResponse("Login Page")
 
@@ -61,5 +63,25 @@ class ChangePasswordView(APIView):
             user.save()
 
             return Response({"message": "Password changed successfully. Please log in again."}, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+
+class PostUpdateView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, id):
+        try:
+            post = Post.objects.get(id=id, user=request.user) 
+        except Post.DoesNotExist:
+            return Response({"error": "Post not found or you don't have permission to edit this post."}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = PostSerializer(post, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "Post updated successfully.", "post": serializer.data}, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
