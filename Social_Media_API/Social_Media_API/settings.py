@@ -1,3 +1,4 @@
+AUTH_USER_MODEL = 'users.User'
 """
 Django settings for Social_Media_API project.
 
@@ -43,6 +44,10 @@ INSTALLED_APPS = [
     'social',          
     'notifications',   
     'rest_framework_simplejwt',  
+    'djoser',
+
+
+
 ]
 
 MIDDLEWARE = [
