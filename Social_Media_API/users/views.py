@@ -14,6 +14,7 @@ from .serializers import (
 )
 from .models import Post
 from .serializers import PostSerializer
+from .serializers import LoginSerializer
 
 class RegisterView(APIView):
     def post(self, request):
@@ -27,8 +28,15 @@ class RegisterView(APIView):
 
 
 
-def login_view(request):
-    return HttpResponse("Login Page")
+class LoginView(APIView):
+    def post(self, request):
+        
+        serializer = LoginSerializer(data=request.data)
+        if serializer.is_valid():
+          
+            return Response(serializer.validated_data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class UserLogoutView(APIView):
     permission_classes = [IsAuthenticated]

@@ -6,6 +6,10 @@ from django.urls import path # type: ignore
 from .views import user_logout
 from django.contrib.auth.views import PasswordChangeView, PasswordChangeDoneView # type: ignore
 from .views import RegisterView
+from .views import PostUpdateView
+from .views import LoginView
+
+
 
 urlpatterns = [
     # JWT Authentication endpoints
@@ -14,6 +18,7 @@ urlpatterns = [
     path('token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('', DashboardView.as_view(), name='dashboard'),
     path('protected-endpoint/', DashboardView.as_view(), name='protected-endpoint'),
+    path('login/', LoginView.as_view(), name='login'),
 
     # Authentication and password management
     path('logout/', user_logout, name='logout'),
@@ -21,4 +26,5 @@ urlpatterns = [
     path('password_change_done/', PasswordChangeDoneView.as_view(), name='password_change_done'),
 
     path('auth/register/', RegisterView.as_view(), name='register'),
+    path('posts/<int:id>/edit/', PostUpdateView.as_view(), name='post-edit'),
 ]

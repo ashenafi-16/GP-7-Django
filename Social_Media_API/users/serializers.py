@@ -2,6 +2,9 @@ from rest_framework import serializers
 from django.contrib.auth.models import User 
 from django.contrib.auth.password_validation import validate_password
 from .models import Post
+from django.contrib.auth import authenticate
+from rest_framework.exceptions import AuthenticationFailed
+from rest_framework_simplejwt.tokens import RefreshToken
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -25,6 +28,23 @@ class RegisterSerializer(serializers.ModelSerializer):
             password=validated_data['password']
         )
         return user
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField(write_only=True)
+
+    def validate(self, data):
+        
+        user = authenticate(username=data['username'], password=data['password'])
+
+        if user is None:
+            raise AuthenticationFailed("Invalid username or password.")
+
+      
+        refresh = RefreshToken.for_user(user)
+        return {
+            'access': str(refresh.access_token),
+            'refresh': str(refresh),
+        }
 
 class LogoutSerializer(serializers.Serializer):
     refresh_token = serializers.CharField()
