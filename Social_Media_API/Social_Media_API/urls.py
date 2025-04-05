@@ -18,9 +18,6 @@ Including another URLconf
 # In your project's main urls.py (usually located in the folder that contains settings.py)
 from django.contrib import admin
 from django.urls import path,include
-from django.urls import path
-# from users.views import login_view, CustomTokenObtainPairView, DashboardView  # Import LoginView
-from rest_framework_simplejwt.views import TokenRefreshView
 
 
 urlpatterns = [
@@ -28,3 +25,4 @@ urlpatterns = [
     path('api/auth/', include('users.urls')),
     
 ]
+
