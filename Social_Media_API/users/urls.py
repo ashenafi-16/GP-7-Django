@@ -1,9 +1,18 @@
-from django.urls import path # type: ignore
-from .views import user_logout
-from django.contrib.auth.views import PasswordChangeView, PasswordChangeDoneView # type: ignore
+from django.urls import path
+from .views import (
+    UserRegistrationView,
+    UserLogoutView,
+    MyTokenObtainPairView,
+    UserProfileDetail,
+)
+from . import views
+from rest_framework_simplejwt.views import TokenRefreshView
 
 urlpatterns = [
-    path('logout/', user_logout, name='logout'),
-    path('password_change/', PasswordChangeView.as_view(), name='password_change'),
-    path('password_change_done/', PasswordChangeDoneView.as_view(), name='password_change_done')
+    path('register/', UserRegistrationView.as_view(), name='register'),
+    path('login/', MyTokenObtainPairView.as_view(), name='login'),
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('logout/', UserLogoutView.as_view(), name='logout'),
+    path('api/users/<int:id>', UserProfileDetail.as_view(), name='user-profile'),
+    path('api/users/me/bio', views.manage_bio, name='manage-bio'),
 ]
