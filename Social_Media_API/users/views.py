@@ -31,6 +31,7 @@ def manage_bio(request):
         return Response({'status': 'bio updated', 'bio': user.bio})
     
 class UserProfileDetail(generics.RetrieveUpdateAPIView):
+    # parser_classes = [IsAuthenticated]
     queryset = User.objects.all()
     serializer_class = UserProfileSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
