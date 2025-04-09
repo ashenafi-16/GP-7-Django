@@ -8,6 +8,7 @@ from django.core.validators import validate_email
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import User
+from social.models import Post
 from django.contrib.auth.hashers import make_password
 
 User = get_user_model()
@@ -26,6 +27,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
             bio=validated_data.get('bio', '')  # Bio is optional
         )
         return user
+    
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
         write_only=True,
@@ -39,9 +41,12 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         style={'input_type': 'password'}
     )
 
+    first_name = serializers.CharField(required=False, allow_blank=True)  # Make first_name optional
+
+
     class Meta:
         model = User
-        fields = ('username', 'email', 'password', 'password2')
+        fields = ('username', 'email', 'password', 'password2', 'first_name')  # Include first_name here
         extra_kwargs = {
             'username': {'required': True},
             'email': {'required': True}
@@ -108,4 +113,37 @@ class UserProfileSerializer(serializers.ModelSerializer):
         # Check if username is already taken by another user
         if User.objects.filter(username=value).exclude(pk=self.instance.pk).exists():
             raise serializers.ValidationError("This username is already in use.")
+        return value
+    
+class PostSerializer(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False)
+
+    class Meta:
+        model = Post
+        fields = ['id', 'user', 'content', 'created_at', 'updated_at', 'likes', 'comments']
+        read_only_fields = ['id', 'user', 'created_at', 'updated_at', 'likes', 'comments']
+
+    def create(self, validated_data):
+        """
+        Create a new post instance while automatically setting the user field.
+        Assumes the user is authenticated.
+        """
+        user = self.context['request'].user  # Get the current authenticated user
+        post = Post.objects.create(user=user, **validated_data)
+        return post
+
+    def update(self, instance, validated_data):
+        """
+        Update the content of the post instance.
+        """
+        instance.content = validated_data.get('content', instance.content)
+        instance.save()
+        return instance
+
+    def validate_content(self, value):
+        """
+        Custom validation for content length. You can adjust this to any specific rules you need.
+        """
+        if len(value) < 10:
+            raise serializers.ValidationError("Content must be at least 10 characters.")
         return value

@@ -3,17 +3,19 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import APIException,PermissionDenied
+from rest_framework.permissions import AllowAny
 from .serializers import (
     UserRegistrationSerializer, 
     MyTokenObtainPairSerializer,
-    UserProfileSerializer
+    UserProfileSerializer,
+    PostSerializer
 )
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 from django.core.exceptions import ValidationError
 
 from .models import User
-
+from social.models import Post
 from rest_framework.decorators import api_view, permission_classes
 
 @api_view(['GET', 'PUT'])
@@ -56,17 +58,23 @@ class UserProfileDetail(generics.RetrieveUpdateAPIView):
         self.perform_update(serializer)
         
         return Response(serializer.data)
+    
 class UserRegistrationView(generics.CreateAPIView):
     serializer_class = UserRegistrationSerializer
+    permission_classes = [AllowAny]  # Public access
     
     def post(self, request, *args, **kwargs):
         try:
+            # Log incoming data for debugging
+            print("Received registration data:", request.data)
+            
             serializer = self.get_serializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             user = serializer.save()
             
             refresh = RefreshToken.for_user(user)
             
+            # Return user data and tokens upon successful registration
             return Response({
                 "user": {
                     "id": user.id,
@@ -78,15 +86,18 @@ class UserRegistrationView(generics.CreateAPIView):
                     "access": str(refresh.access_token),
                 }
             }, status=status.HTTP_201_CREATED)
-            
+        
         except ValidationError as e:
+            # If validation fails, show error details
+            print("Validation error:", e)
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
+            # Log any other errors
+            print("Unexpected error:", e)
             return Response(
-                {"error": "Registration failed. Please try again."},
+                {"error": f"Registration failed. Please try again. Error: {str(e)}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
-
 
 
 class UserLogoutView(generics.GenericAPIView):
@@ -130,6 +141,9 @@ class UserLogoutView(generics.GenericAPIView):
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
     
+    def get_view_name(self):
+        return "User Login"
+
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         
@@ -152,3 +166,43 @@ class MyTokenObtainPairView(TokenObtainPairView):
                 {"error": "Login failed"}, 
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+# Post CRUD Views
+
+class PostCreateView(generics.CreateAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        # Automatically set the user as the one who creates the post
+        serializer.save(user=self.request.user)
+
+class PostDetailView(generics.RetrieveAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+    permission_classes = [permissions.AllowAny]
+    lookup_field = 'pk'
+
+class PostUpdateView(generics.UpdateAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    lookup_field = 'pk'
+
+    def perform_update(self, serializer):
+        post = self.get_object()
+        if post.user != self.request.user:
+            raise PermissionDenied("You can only update your own posts.")
+        serializer.save()
+
+class PostDeleteView(generics.DestroyAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    lookup_field = 'pk'
+
+    def perform_destroy(self, instance):
+        if instance.user != self.request.user:
+            raise PermissionDenied("You can only delete your own posts.")
+        instance.delete()
