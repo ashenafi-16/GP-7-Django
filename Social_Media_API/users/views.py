@@ -1,74 +1,109 @@
-from rest_framework import status, views
+from rest_framework import views, generics, status
 from rest_framework.response import Response
-from django.contrib.auth import authenticate
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
-from .serializers import UserRegistrationSerializer, UserLoginSerializer, UserProfileSerializer
-from django.contrib.auth import get_user_model
-from rest_framework.permissions import IsAuthenticated
-from django.shortcuts import get_object_or_404
 from rest_framework_simplejwt.exceptions import TokenError
+from rest_framework.exceptions import PermissionDenied
+from django.contrib.auth import authenticate, get_user_model
+from django.shortcuts import get_object_or_404
 
+from .serializers import (
+    UserRegistrationSerializer,
+    UserLoginSerializer,
+    UserProfileSerializer
+)
+
+User = get_user_model()
+
+class RegisterView(generics.CreateAPIView):
+    serializer_class = UserRegistrationSerializer
+    permission_classes = [AllowAny]
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        user_data_with_tokens = serializer.save()
+
+        return Response({
+            "user": {
+                "id": user_data_with_tokens["id"],
+                "email": user_data_with_tokens["email"],
+                "username": user_data_with_tokens["username"],
+                "bio": user_data_with_tokens["bio"],
+            },
+            "tokens": {
+                "refresh": user_data_with_tokens["refresh"],
+                "access": user_data_with_tokens["access"]
+            },
+            "message": "User registered successfully"
+        }, status=status.HTTP_201_CREATED)
+
+class LoginUserView(views.APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        serializer = UserLoginSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        user = serializer.validated_data['user']
+        refresh = RefreshToken.for_user(user)
+
+        return Response({
+            "user": {
+                "id": user.id,
+                "email": user.email,
+                "username": user.username,
+                "bio": user.bio
+            },
+            "tokens": {
+                "refresh": str(refresh),
+                "access": str(refresh.access_token)
+            }
+        }, status=status.HTTP_200_OK)
+
+# User Profile View (Get & Update)
 class UserProfileView(views.APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, user_id, *args, **kwargs):
-        # Retrieve the user profile by user_id
-        user = get_object_or_404(get_user_model(), id=user_id)
+    def get(self, request, user_id=None, *args, **kwargs):
+    
+        if user_id is None:
+            user = request.user 
+        else:
+            if request.user.id != user_id:
+                raise PermissionDenied("You do not have permission to view this user's profile.")
+            user = get_object_or_404(User, id=user_id)
+
         serializer = UserProfileSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def put(self, request, user_id, *args, **kwargs):
-        # Update the user profile by user_id
-        user = get_object_or_404(get_user_model(), id=user_id)
-        
-        # Check if the current user is trying to update their own profile
-        if request.user.id != user.id:
-            return Response({"detail": "You cannot update another user's profile."},
-                            status=status.HTTP_403_FORBIDDEN)
+
+    def put(self, request, user_id=None, *args, **kwargs):
+        """
+        Update own profile only.
+        """
+        user = request.user if user_id is None else get_object_or_404(User, id=user_id)
+        if request.user != user:
+            raise PermissionDenied("You cannot update another user's profile")
 
         serializer = UserProfileSerializer(user, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
-class RegisterUserView(views.APIView):
-    def post(self, request, *args, **kwargs):
-        # Register a user
-        serializer = UserRegistrationSerializer(data=request.data)
-        if serializer.is_valid():
-            user = serializer.save()
-            return Response({"message": "User registered successfully."}, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-class LoginUserView(views.APIView):
-    def post(self, request, *args, **kwargs):
-        serializer = UserLoginSerializer(data=request.data)
-        if serializer.is_valid():
-            username = serializer.validated_data['username']
-            password = serializer.validated_data['password']
-
-            # Authenticate the user
-            user = authenticate(username=username, password=password)
-            if user is not None:
-                refresh = RefreshToken.for_user(user)
-                return Response({
-                    "access_token": str(refresh.access_token),
-                    "refresh_token": str(refresh)
-                })
-            else:
-                return Response({"detail": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+# Logout View (Blacklists Token)
 class LogoutUserView(views.APIView):
+    permission_classes = [IsAuthenticated]
+
     def post(self, request, *args, **kwargs):
-        # Log out user and blacklist the refresh token
         refresh_token = request.data.get("refresh_token")
-        if refresh_token:
-            try:
-                token = RefreshToken(refresh_token)
-                token.blacklist()  # Blacklist the refresh token to invalidate it
-                return Response({"message": "Logged out successfully"}, status=status.HTTP_200_OK)
-            except TokenError as e:
-                return Response({"detail": "Invalid refresh token"}, status=status.HTTP_400_BAD_REQUEST)
-        return Response({"detail": "No refresh token provided"}, status=status.HTTP_400_BAD_REQUEST)
+        if not refresh_token:
+            return Response({"detail": "Refresh token is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+            return Response({"message": "Successfully logged out"}, status=status.HTTP_200_OK)
+        except TokenError as e:
+            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
