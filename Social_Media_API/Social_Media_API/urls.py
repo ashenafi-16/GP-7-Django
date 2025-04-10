@@ -18,10 +18,12 @@ Including another URLconf
 # In your project's main urls.py (usually located in the folder that contains settings.py)
 from django.contrib import admin
 from django.urls import path,include
+from django.views.generic import TemplateView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('users.urls')),
     path('api/', include('social.urls')),
+    path('', TemplateView.as_view(template_name='index.html'), name='index'),
     
 ]

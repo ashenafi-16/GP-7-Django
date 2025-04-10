@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Media API Documentation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        .feature {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background: #f9f9f9;
+            transition: background 0.3s;
+        }
+
+        .feature:hover {
+            background: #e3f2fd;
+        }
+
+        .feature h3 {
+            margin-top: 0;
+            cursor: pointer;
+        }
+
+        pre {
+            background: #e3f2fd;
+            padding: 10px;
+            border: 1px solid #90caf9;
+            border-radius: 5px;
+            overflow-x: auto;
+            display: block;
+        }
+
+        code {
+            color: #d32f2f;
+        }
+
+        /* Navigation Menu */
+        nav {
+            background: #007bff;
+            padding: 10px;
+            text-align: center;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        nav a {
+            color: white;
+            margin: 0 15px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        nav a:hover {
+            text-decoration: underline;
+        }
+        
+        .required {
+            color: #d32f2f;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="#authentication">Authentication</a>
+        <a href="#posts">Posts</a>
+        <a href="#comments">Comments</a>
+        <a href="#likes">Likes</a>
+        <a href="#profile">User Profile</a>
+    </nav>
+
+    <div class="container">
+        <h1>Social Media API Documentation</h1>
+        <h2>Explore the API Endpoints Below</h2>
+
+        <!-- Authentication Section -->
+        <div class="feature" id="authentication">
+            <h3>Authentication</h3>
+            
+            <!-- Register -->
+            <div class="feature">
+                <h3>Register User</h3>
+                <p><strong>Method:</strong> POST</p>
+                <p><strong>Endpoint:</strong> <code>/api/register/</code></p>
+                <p><strong>Description:</strong> Register a new user account.</p>
+                <p><strong>Input:</strong></p>
+                <pre>{
+    "username": "new_user",
+    "email": "user@example.com",
+    "password": "securepassword123"
+}</pre>
+                <p><strong>Response (Success):</strong></p>
+                <pre>{
+    "message": "User registered successfully!",
+    "username": "new_user",
+    "email": "user@example.com"
+}</pre>
+            </div>
+            
+            <!-- Login -->
+            <div class="feature">
+                <h3>Login User</h3>
+                <p><strong>Method:</strong> POST</p>
+                <p><strong>Endpoint:</strong> <code>/api/login/</code></p>
+                <p><strong>Description:</strong> Authenticate user and return access/refresh tokens.</p>
+                <p><strong>Input:</strong></p>
+                <pre>{
+    "email": "user@example.com",
+    "password": "securepassword123"
+}</pre>
+                <p><strong>Response (Success):</strong></p>
+                <pre>{
+    "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}</pre>
+            </div>
+            
+            <!-- Logout -->
+            <div class="feature">
+                <h3>Logout User</h3>
+                <p><strong>Method:</strong> POST</p>
+                <p><strong>Endpoint:</strong> <code>/api/logout/</code></p>
+                <p><strong>Description:</strong> Invalidate the user's refresh token.</p>
+                <p><strong>Headers:</strong></p>
+                <pre>{
+    "Authorization": "Bearer &lt;access_token&gt;"
+}</pre>
+                <p><strong>Response (Success):</strong></p>
+                <pre>{
+    "message": "Logout successful!"
+}</pre>
+            </div>
+            
+            <!-- Token Refresh -->
+            <div class="feature">
+                <h3>Refresh Access Token</h3>
+                <p><strong>Method:</strong> POST</p>
+                <p><strong>Endpoint:</strong> <code>/api/token/refresh/</code></p>
+                <p><strong>Description:</strong> Get new access token using refresh token.</p>
+                <p><strong>Input:</strong></p>
+                <pre>{
+    "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}</pre>
+                <p><strong>Response (Success):</strong></p>
+                <pre>{
+    "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}</pre>
+            </div>
+        </div>
+
+        <!-- Posts Section -->
+        <div class="feature" id="posts">
+            <h3>Posts Management</h3>
+            
+            <!-- Create Post -->
+            <div class="feature">
+                <h3>Create Post</h3>
+                <p><strong>Method:</strong> POST</p>
+                <p><strong>Endpoint:</strong> <code>/api/posts/create/</code></p>
+                <p><strong>Description:</strong> Create a new post.</p>
+                <p><strong>Headers:</strong></p>
+                <pre>{
+    "Authorization": "Bearer &lt;access_token&gt;"
+}</pre>
+                <p><strong>Input (FormData):</strong></p>
+                <pre>{
+    "content": "This is my new post!",
+    "image": &lt;file&gt;  <span class="required">(optional)</span>
+}</pre>
+                <p><strong>Response (Success):</strong></p>
+                <pre>{
+    "id": 1,
+    "author": "new_user",
+    "content": "This is my new post!",
+    "image": "http://example.com/media/posts/image.jpg",
+    "created_at": "2025-01-17T15:00:00Z",
+    "likes_count": 0,
+    "comments_count": 0
+}</pre>
+            </div>
+            
+            <!-- List Posts -->
+            <div class="feature">
+                <h3>List Posts</h3>
+                <p><strong>Method:</strong> GET</p>
+                <p><strong>Endpoint:</strong> <code>/api/posts/</code></p>
+                <p><strong>Description:</strong> Get all posts (paginated).</p>
+                <p><strong>Headers:</strong> <span class="required">(optional)</span></p>
+                <pre>{
+    "Authorization": "Bearer &lt;access_token&gt;"
+}</pre>
+                <p><strong>Response (Success):</strong></p>
+                <pre>{
+    "count": 2,
+    "next": null,
+    "previous": null,
+    "results": [
+        {
+            "id": 1,
+            "author": "user1",
+            "content": "First post content",
+            "image": null,
+            "created_at": "2025-01-16T12:00:00Z",
+            "likes_count": 3,
+            "comments_count": 2,
+            "is_liked": false
+        },
+        {
+            "id": 2,
+            "author": "user2",
+            "content": "Second post content",
+            "image": "http://example.com/media/posts/image2.jpg",
+            "created_at": "2025-01-15T10:30:00Z",
+            "likes_count": 5,
+            "comments_count": 1,
+            "is_liked": true
+        }
+    ]
+}</pre>
+            </div>
+            
+            <!-- Delete Post -->
+            <div class="feature">
+                <h3>Delete Post</h3>
+                <p><strong>Method:</strong> DELETE</p>
+                <p><strong>Endpoint:</strong> <code>/api/posts/delete/&lt;int:pk&gt;/</code></p>
+                <p><strong>Description:</strong> Delete a post (only by author or admin).</p>
+                <p><strong>Headers:</strong></p>
+                <pre>{
+    "Authorization": "Bearer &lt;access_token&gt;"
+}</pre>
+                <p><strong>Response (Success):</strong></p>
+                <pre>{
+    "message": "Post deleted successfully!"
+}</pre>
+            </div>
+        </div>
+
+        <!-- Comments Section -->
+        <div class="feature" id="comments">
+            <h3>Comments Management</h3>
+            
+            <!-- Create Comment -->
+            <div class="feature">
+                <h3>Create Comment</h3>
+                <p><strong>Method:</strong> POST</p>
+                <p><strong>Endpoint:</strong> <code>/api/posts/&lt;int:post_id&gt;/comments/create/</code></p>
+                <p><strong>Description:</strong> Add a comment to a post.</p>
+                <p><strong>Headers:</strong></p>
+                <pre>{
+    "Authorization": "Bearer &lt;access_token&gt;",
+    "Content-Type": "application/json"
+}</pre>
+                <p><strong>Input:</strong></p>
+                <pre>{
+    "content": "This is a great post!"
+}</pre>
+                <p><strong>Response (Success):</strong></p>
+                <pre>{
+    "id": 1,
+    "post": 1,
+    "author": "commenter_user",
+    "content": "This is a great post!",
+    "created_at": "2025-01-17T15:30:00Z"
+}</pre>
+            </div>
+            
+            <!-- Delete Comment -->
+            <div class="feature">
+                <h3>Delete Comment</h3>
+                <p><strong>Method:</strong> DELETE</p>
+                <p><strong>Endpoint:</strong> <code>/api/comments/delete/&lt;int:pk&gt;/</code></p>
+                <p><strong>Description:</strong> Delete a comment (only by author or admin).</p>
+                <p><strong>Headers:</strong></p>
+                <pre>{
+    "Authorization": "Bearer &lt;access_token&gt;"
+}</pre>
+                <p><strong>Response (Success):</strong></p>
+                <pre>{
+    "message": "Comment deleted successfully!"
+}</pre>
+            </div>
+        </div>
+
+        <!-- Likes Section -->
+        <div class="feature" id="likes">
+            <h3>Likes Management</h3>
+            
+            <!-- Create Like -->
+            <div class="feature">
+                <h3>Like a Post</h3>
+                <p><strong>Method:</strong> POST</p>
+                <p><strong>Endpoint:</strong> <code>/api/posts/&lt;int:post_id&gt;/like/</code></p>
+                <p><strong>Description:</strong> Like a post.</p>
+                <p><strong>Headers:</strong></p>
+                <pre>{
+    "Authorization": "Bearer &lt;access_token&gt;"
+}</pre>
+                <p><strong>Response (Success):</strong></p>
+                <pre>{
+    "message": "Post liked successfully!"
+}</pre>
+            </div>
+            
+            <!-- Delete Like -->
+            <div class="feature">
+                <h3>Unlike a Post</h3>
+                <p><strong>Method:</strong> DELETE</p>
+                <p><strong>Endpoint:</strong> <code>/api/likes/delete/&lt;int:pk&gt;/</code></p>
+                <p><strong>Description:</strong> Remove a like from a post.</p>
+                <p><strong>Headers:</strong></p>
+                <pre>{
+    "Authorization": "Bearer &lt;access_token&gt;"
+}</pre>
+                <p><strong>Response (Success):</strong></p>
+                <pre>{
+    "message": "Like removed successfully!"
+}</pre>
+            </div>
+        </div>
+
+        <!-- User Profile Section -->
+        <div class="feature" id="profile">
+            <h3>User Profile</h3>
+            
+            <!-- Get Profile -->
+            <div class="feature">
+                <h3>Get User Profile</h3>
+                <p><strong>Method:</strong> GET</p>
+                <p><strong>Endpoint:</strong> <code>/api/profile/</code> (current user) or <code>/api/profile/&lt;int:user_id&gt;/</code></p>
+                <p><strong>Description:</strong> Get user profile information.</p>
+                <p><strong>Headers:</strong> <span class="required">(optional for public profiles)</span></p>
+                <pre>{
+    "Authorization": "Bearer &lt;access_token&gt;"
+}</pre>
+                <p><strong>Response (Success):</strong></p>
+                <pre>{
+    "id": 1,
+    "username": "test_user",
+    "email": "user@example.com",
+    "bio": "Hello world!",
+    "profile_picture": "http://example.com/media/profiles/user.jpg",
+    "posts_count": 5,
+    "followers_count": 10,
+    "following_count": 3,
+    "is_following": false
+}</pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Toggle visibility of pre elements
+        document.querySelectorAll('.feature h3').forEach(header => {
+            header.addEventListener('click', (e) => {
+                // Don't toggle if clicking on a section header
+                if (!e.target.closest('.feature > h3')) {
+                    const pre = header.nextElementSibling;
+                    while (pre && pre.tagName !== 'PRE') {
+                        pre = pre.nextElementSibling;
+                    }
+                    if (pre) {
+                        pre.style.display = pre.style.display === 'none' ? 'block' : 'none';
+                    }
+                }
+            });
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>
