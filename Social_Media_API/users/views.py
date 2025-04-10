@@ -62,7 +62,6 @@ class LoginUserView(views.APIView):
             }
         }, status=status.HTTP_200_OK)
 
-# User Profile View (Get & Update)
 class UserProfileView(views.APIView):
     permission_classes = [IsAuthenticated]
 
@@ -92,7 +91,6 @@ class UserProfileView(views.APIView):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-# Logout View (Blacklists Token)
 class LogoutUserView(views.APIView):
     permission_classes = [IsAuthenticated]
 

@@ -6,7 +6,6 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 User = get_user_model()
 
-# ✅ Updated Registration Serializer (with Refresh and Access Token)
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
         write_only=True,
@@ -53,7 +52,6 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             "access": str(refresh.access_token),
         }
 
-# ✅ Login Serializer
 class UserLoginSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)
     password = serializers.CharField(
@@ -78,7 +76,6 @@ class UserLoginSerializer(serializers.Serializer):
         data['user'] = user
         return data
 
-# ✅ User Profile Serializer
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User

@@ -17,7 +17,6 @@ class PostCreateView(APIView):
         if not content:
             return Response({"message": "Content is required."}, status=status.HTTP_400_BAD_REQUEST)
         
-        # Create a new post
         post = Post.objects.create(user=request.user, content=content)
         return Response(PostSerializer(post).data, status=status.HTTP_201_CREATED)
 

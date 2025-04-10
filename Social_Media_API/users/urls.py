@@ -12,7 +12,6 @@ urlpatterns = [
     path('login/', LoginUserView.as_view(), name='auth-login'),
     path('logout/', LogoutUserView.as_view(), name='auth-logout'),
 
-    # Refresh access token using refresh token
     path('token/refresh/', TokenRefreshView.as_view(), name='token-refresh'),
 
     path('profile/', UserProfileView.as_view(), name='user-profile-current'),

@@ -16,7 +16,7 @@ class Post(models.Model):
     comments_count = models.PositiveIntegerField(default=0)  
 
     class Meta:
-        ordering = ['-created_at']  # Posts will be ordered by creation date in descending order
+        ordering = ['-created_at']  
 
     def __str__(self):
         return f"Post by {self.user.username}: {self.content[:50]}..."
@@ -48,7 +48,7 @@ class Comment(models.Model):
 
     def save(self, *args, **kwargs):
         """Override save to update the comment count of the post."""
-        super().save(*args, **kwargs)  # Save the comment
+        super().save(*args, **kwargs)  
         self.post.update_comment_count()  # Update the comment count of the related post
 
 

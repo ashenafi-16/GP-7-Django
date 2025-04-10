@@ -2,15 +2,10 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from .models import Post, Comment, Like, Follow
 
-
-# ---------------------------
-# POST SERIALIZER
-# ---------------------------
-
 class PostSerializer(serializers.ModelSerializer):
     user = serializers.StringRelatedField(read_only=True)
-    comments = serializers.StringRelatedField(many=True, read_only=True)  # Display associated comments
-    likes = serializers.StringRelatedField(many=True, read_only=True)  # Display associated likes
+    comments = serializers.StringRelatedField(many=True, read_only=True)  
+    likes = serializers.StringRelatedField(many=True, read_only=True)  
 
     class Meta:
         model = Post
@@ -18,20 +13,13 @@ class PostSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'created_at', 'likes_count', 'comments_count']
 
     def update(self, instance, validated_data):
-        # Custom update behavior (if needed)
         instance.content = validated_data.get('content', instance.content)
         instance.save()
         return instance
 
-
-# ---------------------------
-# COMMENT SERIALIZER
-# ---------------------------
-
 class CommentSerializer(serializers.ModelSerializer):
     user = serializers.StringRelatedField(read_only=True)
-    post = serializers.StringRelatedField(read_only=True)  # Display associated post
-
+    post = serializers.StringRelatedField(read_only=True)  
     class Meta:
         model = Comment
         fields = ['id', 'user', 'post', 'content', 'created_at', 'parent']
@@ -43,23 +31,16 @@ class CommentSerializer(serializers.ModelSerializer):
         return value
 
 
-# ---------------------------
-# LIKE SERIALIZER
-# ---------------------------
 
 class LikeSerializer(serializers.ModelSerializer):
     user = serializers.StringRelatedField(read_only=True)
-    post = serializers.StringRelatedField(read_only=True)  # Display associated post
+    post = serializers.StringRelatedField(read_only=True) 
 
     class Meta:
         model = Like
         fields = ['user', 'post', 'liked_at']
         read_only_fields = ['liked_at']
 
-
-# ---------------------------
-# FOLLOW SERIALIZER
-# ---------------------------
 
 class FollowSerializer(serializers.ModelSerializer):
     follower = serializers.StringRelatedField(read_only=True)
