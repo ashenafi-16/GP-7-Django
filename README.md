@@ -1,4 +1,3 @@
-```
 # Social Media API - Complete Documentation
 
 ## 📌 Project Overview
@@ -173,4 +172,4 @@ This is a Social Media API built using Django and Django REST Framework (DRF). T
 - **Likes**: Like/unlike posts functionality.
 - **Following**: Follow/unfollow other users.
 - **Mobile-Friendly UI**: The design ensures the app is responsive.
-```
+
