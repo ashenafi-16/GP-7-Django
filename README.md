@@ -1,4 +1,4 @@
-```markdown
+```
 # Social Media API - Complete Documentation
 
 ## 📌 Project Overview
