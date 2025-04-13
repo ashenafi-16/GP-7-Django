@@ -10,7 +10,8 @@ from django.shortcuts import get_object_or_404
 from .serializers import (
     UserRegistrationSerializer,
     UserLoginSerializer,
-    UserProfileSerializer
+    UserProfileSerializer,
+    UserSearchSerializer
 )
 
 User = get_user_model()
@@ -105,3 +106,13 @@ class LogoutUserView(views.APIView):
             return Response({"message": "Successfully logged out"}, status=status.HTTP_200_OK)
         except TokenError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+class UserSearchView(generics.ListAPIView):
+    serializer_class = UserSearchSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        query = self.request.query_params.get('q', None)
+        if query:
+            return User.objects.filter(username__icontains=query)
+        return User.objects.none() 
