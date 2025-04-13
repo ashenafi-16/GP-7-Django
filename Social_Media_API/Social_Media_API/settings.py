@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'social',          
     'notifications',
     'rest_framework_simplejwt', 
+    'drf_yasg',  # For Swagger documentation
 ]
 
 REST_FRAMEWORK = {
@@ -157,7 +158,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 LOGIN_REDIRECT_URL = 'dashboard'
-LOGIN_URL = 'login'
+# LOGIN_URL = 'login'
 
 AUTH_USER_MODEL = 'users.User'  
 

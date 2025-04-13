@@ -90,3 +90,14 @@ class UserProfileSerializer(serializers.ModelSerializer):
         instance.bio = validated_data.get('bio', instance.bio)
         instance.save()
         return instance
+
+class UserSearchSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email']
+        read_only_fields = ['id', 'email']
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['bio'] = instance.bio if instance.bio else ''
+        return representation
